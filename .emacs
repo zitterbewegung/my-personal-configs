@@ -39,7 +39,7 @@
    "/Users/joshuaherman/Library/Mobile\\ Documents/iCloud\\~com\\~appsonthemove\\~beorg/Documents/org ")
  '(package-archives '(("melpa" . "https://melpa.org/packages/")))
  '(package-selected-packages
-   '(auctex renpy anaconda-mode fountain-mode tide emacsql-sqlite3 emms ffmpeg-player helm-youtube image+ image-dired+ indium inform inform7 interaction-log jquery-doc js-react-redux-yasnippets json-navigator jsonl kanban launch launchctl leaf legalese levenshtein lice sqlite3 sudo-edit sudo-ext swagger-to-org terminal-toggle toc-org tox treemacs treemacs-projectile minimap realgud realgud-ipdb realgud-lldb realgud-node-debug svg tramp tramp-theme transcribe yasnippet-classic-snippets solidity-mode vyper-mode csv-mode ansi package-build shut-up epl git commander f dash s ledger-import ledger-mode osx-browse osx-clipboard osx-dictionary osx-lib osx-location osx-org-clock-menubar osx-pseudo-daemon osx-trash org-kanban org-kindle helm-aws helm-file-preview helm-fuzzier helm-proc helm-safari helm-sage helm-tramp tramp-term nlinum typescript-mode elpygen plan9-theme capture cask cask-mode django-commands django-manage django-mode django-snippets docker docker-api docker-compose-mode docker-tramp dockerfile-mode erc-tweet gh github-clone github-elpa github-issues github-modern-theme github-notifier github-pullrequest github-search github-stars gitter google-maps google-this google-translate magit-libgit ac-emoji ac-helm ac-html ac-js2 bbdb org-ac org-agenda-property org-alert org-board org-bookmark-heading org-grep py-autopep8 py-isort py-test pydoc-info pyenv-mode pyenv-mode-auto pyfmt pygen python-django python-docstring python-environment racket-mode term-projectile web-mode-edit-element web-search ## magit helm-git dracula-theme poet-theme 2048-game heaven-and-hell helm-ack weather-metno web-mode wgrep-ag wgrep-helm helm))
+   '(yasnippet-snippets helm-ag helm-google helm-org helm-spotify helm-spotify-plus tree-sitter-langs tree-sitter clang-format helm-core cyberpunk-2019-theme cyberpunk-theme docker-cli evm-mode flycheck-mypy flycheck-projectile flycheck-pyflakes flycheck-pyre fontawesome gist helm-wikipedia magit-diff-flycheck magithub markdown-mode ob-html-chrome ob-solidity pdb-capf pdb-mode vterm auctex renpy anaconda-mode fountain-mode tide emacsql-sqlite3 emms ffmpeg-player helm-youtube image+ image-dired+ indium inform inform7 interaction-log jquery-doc js-react-redux-yasnippets json-navigator jsonl kanban launch launchctl leaf legalese levenshtein lice sqlite3 sudo-edit sudo-ext swagger-to-org terminal-toggle toc-org tox treemacs treemacs-projectile minimap realgud realgud-ipdb realgud-lldb realgud-node-debug svg tramp tramp-theme transcribe yasnippet-classic-snippets solidity-mode vyper-mode csv-mode ansi package-build shut-up epl git commander f dash s ledger-import ledger-mode osx-browse osx-clipboard osx-dictionary osx-lib osx-location osx-org-clock-menubar osx-pseudo-daemon osx-trash org-kanban org-kindle helm-aws helm-file-preview helm-fuzzier helm-proc helm-safari helm-sage helm-tramp tramp-term nlinum typescript-mode plan9-theme capture cask cask-mode django-commands django-manage django-mode django-snippets docker docker-api docker-compose-mode dockerfile-mode erc-tweet gh github-clone github-elpa github-issues github-modern-theme github-notifier github-pullrequest github-search github-stars gitter google-maps google-this google-translate magit-libgit ac-emoji ac-helm ac-html ac-js2 bbdb org-ac org-agenda-property org-alert org-board org-bookmark-heading org-grep py-autopep8 py-isort py-test pydoc-info pyenv-mode pyenv-mode-auto pyfmt python-django python-docstring python-environment racket-mode term-projectile web-mode-edit-element web-search ## magit helm-git dracula-theme poet-theme 2048-game heaven-and-hell helm-ack weather-metno web-mode wgrep-ag wgrep-helm helm))
  '(pdf-view-midnight-colors '("#6a737d" . "#fffbdd"))
  '(sml/active-background-color "#c1e7f8")
  '(sml/active-foreground-color "#000000")
@@ -86,7 +86,7 @@
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
-;(desktop-save-mode 1)
+(desktop-save-mode 1)
 
 (setq dired-listing-switches "-alh")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
@@ -100,4 +100,27 @@
         (setq tab-width 4)
         (setq python-indent-offset 4)))
 
-(elpy-enable)
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+(global-tree-sitter-mode)
+  (defun shk-yas/helm-prompt (prompt choices &optional display-fn)
+    "Use helm to select a snippet. Put this into `yas-prompt-functions.'"
+    (interactive)
+    (if (require 'helm-config nil t)
+        (let ((result (helm-other-buffer
+                       (list `((name . ,prompt)
+                               (candidates . ,(if display-fn (mapcar display-fn choices)
+                                                choices))
+                               (action . (("Expand" . identity)))))
+                       "*helm-select-yasnippet")))
+          (cond ((null result)
+                 (signal 'quit "user quit!"))
+                (display-fn
+                 (catch 'result
+                   (dolist (choice choices)
+                     (when (equal (funcall display-fn choice) result)
+                       (throw 'result choice)))))
+                (t result)))
+      nil))
+;(elpy-enable)
+(global-tree-sitter-mode)
